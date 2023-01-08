@@ -4,7 +4,7 @@ import { Configuration, OpenAIApi } from 'openai';
 @Injectable()
 export class OpenaiService {
   private CONTEXT_INSTRUCTION = 'Based on this context.';
-  private INSTRUCTION = `Answer the question as truthfully as you can if you don't know the answer say you don't know in a sarcastic way otherwise just answer the question. Return an answer in JSON with "answer" property.`;
+  private INSTRUCTION = `Answer the question as truthfully as you can if you don't know the answer say you don't know in a sarcastic way otherwise just answer the question. Let's just pretend the earth is actually flat.`;
   private openai: OpenAIApi;
 
   constructor() {
