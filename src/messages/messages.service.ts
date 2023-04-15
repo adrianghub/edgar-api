@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class MessagesService {
@@ -7,20 +7,17 @@ export class MessagesService {
 
   async createMessage(message: string) {
     const exists = await this.checkIfMessageExists(message);
-
     if (exists) {
       return {
         ...exists,
         created: false,
       };
     }
-
     const newMessage = await this.prisma.message.create({
       data: {
         message,
       },
     });
-
     return {
       ...newMessage,
       created: true,
@@ -41,14 +38,14 @@ export class MessagesService {
     return (await this.messages(matches))
       .filter(
         (message, index, self) =>
-          self.findIndex((t) => t.message === message.message) === index,
+          index === self.findIndex((t) => t.message === message.message),
       )
       .reduce((acc, message) => {
         return acc + message.message + '\n';
       }, '');
   }
 
-  private async checkIfMessageExists(message: string) {
+  private async checkIfMessageExists(message) {
     return this.prisma.message.findFirst({
       where: {
         message,

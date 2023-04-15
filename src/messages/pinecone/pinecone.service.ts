@@ -1,30 +1,37 @@
 import { Injectable } from '@nestjs/common';
+import { pineconeIndex } from './pinecone.config';
+import { QueryRequest, UpsertRequest } from '@pinecone-database/pinecone';
 
 @Injectable()
 export class PineconeService {
-  // private pinecone;
-  // constructor() {
-  //   // ERROR [ExceptionHandler] globalThis.Headers is not a constructor (???)
-  //   this.pinecone = new PineconeClient({
-  //     apiKey: process.env.PINECONE_API_KEY,
-  //     baseUrl: process.env.PINECONE_BASE_URL,
-  //     namespace: process.env.PINECONE_NAMESPACE,
-  //   });
-  // }
-  // upsert(vectors) {
-  //   return this.pinecone.upsert({
-  //     vectors: [vectors],
-  //   });
-  // }
-  // async query(vector) {
-  //   const { matches } = await this.pinecone.query({
-  //     vector,
-  //     topK: 1,
-  //     includeMetadata: true,
-  //     includeVector: true,
-  //   });
-  //   return matches
-  //     .filter((match) => match.score > 0.8)
-  //     .map((match) => parseInt(match.id));
-  // }
+  async upsert(vectors) {
+    const upsertRequest: UpsertRequest = {
+      vectors: [vectors],
+    };
+
+    return await (
+      await pineconeIndex()
+    ).upsert({
+      upsertRequest,
+    });
+  }
+
+  async query(vector) {
+    const queryRequest: QueryRequest = {
+      topK: 10,
+      vector,
+      includeMetadata: true,
+      includeValues: false,
+    };
+
+    const { matches } = await (
+      await pineconeIndex()
+    ).query({
+      queryRequest,
+    });
+
+    return matches
+      .filter((match) => match.score > 0.8)
+      .map((match) => parseInt(match.id));
+  }
 }

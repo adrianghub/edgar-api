@@ -11,8 +11,6 @@ datasource db {
 }
 
 model Message {
-  id        Int      @id @default(autoincrement())
-  message      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id    Int     @default(autoincrement()) @id
+  message String
 }
