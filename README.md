@@ -1,3 +1,7 @@
-# "Assistant" a GPT-3 Chatbot
+# Edgar API
 
-Assistant is a GPT-3 chatbot that uses the OpenAI API to generate responses. WIP
+Tech stack:
+- local DB postgresql
+- vector DB Pinecone
+- ORM Prisma
+- OpenAPI (Embedding/Completion)
