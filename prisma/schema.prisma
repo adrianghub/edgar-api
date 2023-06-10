@@ -12,5 +12,6 @@ datasource db {
 
 model Message {
   id    Int     @default(autoincrement()) @id
-  message String
+  conversation_id String
+  message String 
 }

@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { nanoid } from 'nanoid';
 
 @Injectable()
-export class MessagesService {
+export class AssistantService {
   constructor(private readonly prisma: PrismaService) {}
 
   async createMessage(message: string) {
@@ -16,25 +17,27 @@ export class MessagesService {
     const newMessage = await this.prisma.message.create({
       data: {
         message,
+        conversation_id: nanoid(),
       },
     });
+
     return {
       ...newMessage,
       created: true,
     };
   }
 
-  async messages(ids: number[]) {
+  async messages(ids: string[]) {
     return this.prisma.message.findMany({
       where: {
-        id: {
+        conversation_id: {
           in: ids,
         },
       },
     });
   }
 
-  async getContext(matches) {
+  async getContext(matches: string[]) {
     return (await this.messages(matches))
       .filter(
         (message, index, self) =>
@@ -45,7 +48,7 @@ export class MessagesService {
       }, '');
   }
 
-  private async checkIfMessageExists(message) {
+  private async checkIfMessageExists(message: string) {
     return this.prisma.message.findFirst({
       where: {
         message,

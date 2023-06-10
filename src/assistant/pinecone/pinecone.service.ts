@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { pineconeIndex } from './pinecone.config';
-import { QueryRequest, UpsertRequest } from '@pinecone-database/pinecone';
+import {
+  QueryRequest,
+  UpsertRequest,
+  Vector,
+} from '@pinecone-database/pinecone';
 
 @Injectable()
 export class PineconeService {
-  async upsert(vectors) {
+  async upsert(vectors: Vector) {
     const upsertRequest: UpsertRequest = {
       vectors: [vectors],
     };
@@ -16,7 +20,7 @@ export class PineconeService {
     });
   }
 
-  async query(vector) {
+  async query(vector: number[]) {
     const queryRequest: QueryRequest = {
       topK: 10,
       vector,
@@ -32,6 +36,6 @@ export class PineconeService {
 
     return matches
       .filter((match) => match.score > 0.8)
-      .map((match) => parseInt(match.id));
+      .map((match) => match.id);
   }
 }

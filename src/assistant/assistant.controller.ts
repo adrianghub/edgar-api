@@ -1,28 +1,29 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { MessagesService } from './messages.service';
+import { AssistantService } from './assistant.service';
 import { OpenaiService } from './openai/openai.service';
 import { PineconeService } from './pinecone/pinecone.service';
 
-@Controller('messages')
-export class MessagesController {
+@Controller('assistant')
+export class AssistantController {
   constructor(
-    private readonly messagesService: MessagesService,
+    private readonly assistantService: AssistantService,
     private readonly openaiService: OpenaiService,
     private readonly pineconeService: PineconeService,
   ) {}
 
-  @Post()
+  @Post('/conversation')
   async createMessage(@Body() data: { message: string }) {
-    const { id, created } = await this.messagesService.createMessage(
-      data.message,
-    );
+    const { conversation_id, created } =
+      await this.assistantService.createMessage(data.message);
+
     const embed = await this.openaiService.createEmbedding(data.message);
     const matches = await this.pineconeService.query(embed.data[0].embedding);
-    const context = await this.messagesService.getContext(matches);
+
+    const context = await this.assistantService.getContext(matches);
 
     if (created) {
       this.pineconeService.upsert({
-        id: id.toString(),
+        id: conversation_id,
         values: embed.data[0].embedding,
       });
     }
