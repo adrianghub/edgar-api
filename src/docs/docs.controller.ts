@@ -5,6 +5,7 @@ import {
   HttpStatus,
   UploadedFiles,
   UseInterceptors,
+  Body,
 } from '@nestjs/common';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -58,6 +59,21 @@ export class DocsController {
       };
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Post('/query')
+  async processQuestion(@Body('query') query: string) {
+    try {
+      const answer = await this.docsService.searchRelevantDocs(query);
+
+      return { answer };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        'An error occurred',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

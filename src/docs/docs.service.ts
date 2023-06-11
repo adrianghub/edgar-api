@@ -66,32 +66,45 @@ export class DocsService {
     }
   }
 
-  // return 10 results having gpt4, gpt-3.5 otherwise (model === 'gpt-4' ? 10 : 5)
-  async searchReleventDocs(question: string) {
-    const chat = new ChatOpenAI({
-      modelName: MODEL,
-      maxTokens: 1500,
-      openAIApiKey: process.env.OPENAI_API_KEY,
-    });
+  async searchRelevantDocs(question: string) {
+    try {
+      const chat = new ChatOpenAI({
+        modelName: MODEL,
+        maxTokens: 1500,
+        openAIApiKey: process.env.OPENAI_API_KEY,
+      });
 
-    const relevantDocs = await this.vectorStore.similaritySearch(question, 5);
+      this.vectorStore = await HNSWLib.load(
+        VECTOR_STORE_PATH,
+        new OpenAIEmbeddings(),
+      );
 
-    const context = `${process.env.DOCS_PROMPT}\n\n
-    Note: context is your own memory about relevant document.
-            
-    context:
-    <|start|>${relevantDocs
-      .map(
-        (doc) => 'Document: ' + doc.metadata.metadata + '\n' + doc.pageContent,
-      )
-      .join('\n\n')}
-    <|end|>`;
+      // return max 10 results having gpt4, gpt-3.5 otherwise with max 5 docs (model === 'gpt-4' ? 10 : 5)
+      const relevantDocs = await this.vectorStore.similaritySearch(question, 5);
 
-    const res = await chat.call([
-      new SystemChatMessage(context),
-      new HumanChatMessage(question),
-    ]);
+      const context = `${process.env.DOCS_PROMPT}\n\n
+      Note: context is your own memory about relevant document.
+              
+      context:
+      ${relevantDocs
+        .map(
+          (doc) =>
+            'Document: ' + doc.metadata.metadata + '\n' + doc.pageContent,
+        )
+        .join('\n\n')}
+      `;
 
-    return res.text;
+      const res = await chat.call([
+        new SystemChatMessage(context),
+        new HumanChatMessage(question),
+      ]);
+
+      return res.text;
+    } catch (error) {
+      console.error(error);
+      throw new Error(
+        'An error occurred while searching for relevant documents',
+      );
+    }
   }
 }
