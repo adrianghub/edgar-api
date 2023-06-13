@@ -15,7 +15,7 @@ export class OpenaiService {
     this.openai = new OpenAIApi(configuration);
   }
 
-  async createEmbedding(prompt) {
+  async createEmbedding(prompt: string) {
     const { data: embed } = await this.openai.createEmbedding({
       input: prompt,
       model: 'text-embedding-ada-002',
@@ -24,7 +24,7 @@ export class OpenaiService {
     return embed;
   }
 
-  async createCompletion(prompt, context) {
+  async createCompletion(prompt: string, context: string) {
     const completion = await this.openai.createChatCompletion({
       model: 'gpt-3.5-turbo',
       messages: [

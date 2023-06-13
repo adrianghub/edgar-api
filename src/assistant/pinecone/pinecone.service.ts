@@ -35,7 +35,10 @@ export class PineconeService {
     });
 
     return matches
-      .filter((match) => match.score > 0.8)
+      .filter(
+        (match) =>
+          match.score >= matches.reduce((acc, match) => acc + match.score, 0),
+      )
       .map((match) => match.id);
   }
 }
